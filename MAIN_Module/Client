@@ -1,0 +1,18 @@
+#!/usr/bin/env python
+from socket import *
+import sys
+
+sock=AF_INET
+stream=SOCK_STREAM
+port_num=int(sys.argv[1])
+parameters = sys.argv[2:]
+
+stream_sock=socket(sock,stream)
+stream_sock.connect(('',port_num))
+
+parm_msg=''.join(str(x) for x in parameters)
+msg_to_send = parm_msg
+
+stream_sock.send(msg_to_send)
+#print 'Got the message ',stream_sock.recv(1024)
+stream_sock.close()
