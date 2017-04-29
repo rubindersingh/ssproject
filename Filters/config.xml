@@ -1,0 +1,95 @@
+<configuration>
+	<service port="5000">
+		<pub>1000</pub>
+		<expected_args>
+			<arg type="int">
+                <regex>[0-9]+</regex>
+				<position>0</position>
+				<max_len>7</max_len>
+				<max_value>10</max_value>
+				<min_value>-10</min_value>
+				<default>0</default>
+			</arg>
+			<arg type="string">
+				<regex>[A-Za-z0-9]+</regex>
+                <position>1</position>
+				<max_len>512</max_len>
+				<default>""</default>
+				<delimiter>\0</delimiter>
+			</arg>
+<!--
+			<arg type="array">
+				<position>3</position>
+				<max_len>5</max_len>
+				<default>None</default>
+				<delimiter>\0</delimiter>
+			</arg>
+-->
+			<arg type="float">
+				<regex>[0-9]*[.][0-9]*</regex>
+                <position>2</position>
+				<max_len>10</max_len>
+				<min_value>-10</min_value>
+				<default>0.0</default>
+			</arg>
+			<arg type="bool">
+                <regex>(?i)(true|false)</regex>
+				<position>4</position>
+				<default>false</default>
+			</arg>
+		</expected_args>
+		<filters>
+			<filter name="num_of_args">
+				<required>5</required>
+				<next>type_check</next>
+			</filter>
+			<filter name="type_check">
+				<next>buffer_overflow</next>
+			</filter>
+			<filter name="buffer_overflow">
+				<next>path_attack</next>
+				<patterns>
+					<pattern desc="backtick">(`[A-Za-z0-9]*)+</pattern>
+					<pattern desc="NOPS">(\x90)+</pattern>
+					<pattern desc="Shellcode">\x31\xc0\x50\x68\x6e\x2f\x73\x68\x68\x2f\x2f\x62\x69\x89\xe3\x50\x53\x89\xe1\x89\xc2\xb0\x0b\xcd\x80\x31\xc0\xb0\x01\x31\xdb\xcd\x80</pattern>
+				</patterns>
+			</filter>
+			<filter name="path_attack">
+				<next>format_string</next>
+				<pattern>[../]+</pattern>
+			</filter>
+			<filter name="format_string">
+				<pattern>(%s)+</pattern>
+				<pattern>(%x)+</pattern>
+				<pattern>(%n)+</pattern>
+			</filter>
+		</filters>
+	</service>
+    <service port="6000">
+        <pub>2000</pub>
+        <expected_args>
+            <arg type="int">
+                <regex>[0-9]+</regex>
+				<position>0</position>
+				<max_len>7</max_len>
+				<max_value>10</max_value>
+				<min_value>-10</min_value>
+				<default>0</default>
+			</arg>
+			<arg type="string">
+                <regex>[A-Za-z0-9]+</regex>
+				<position>1</position>
+				<max_len>512</max_len>
+				<default>""</default>
+				<delimiter>\0</delimiter>
+			</arg>
+        </expected_args>
+        <filters>
+            <filter name="type_check">
+				<next>buffer_overflow</next>
+			</filter>
+            <filter name="buffer_overflow">
+            </filter>
+        </filters>
+    </service>
+</configuration>
