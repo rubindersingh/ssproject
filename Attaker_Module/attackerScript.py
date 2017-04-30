@@ -11,6 +11,7 @@ nonserviceVarFound=0
 ourTeamNum=1
 teams = 3
 tick=5
+
 """i = iCTF("http://52.34.158.221/")
 t = i.login("team"+ourTeamNum+"@example.com","password")
 serviceList=t.get_service_list()"""
