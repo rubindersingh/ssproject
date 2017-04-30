@@ -158,10 +158,7 @@ def attackTeams(command,teamNum):
                 varDict["$address"]=rearrangedAddr
                 commandList[varIndexDict["$address"]]=rearrangedAddr
                 
-    finalCommandStr = commandToAttack(commandList,teamNum)
-    
-    print teamNum, "atttc",finalCommandStr
-                
+    finalCommandStr = commandToAttack(commandList,teamNum)                
     getFlags(finalCommandStr,teamNum)
                 
 
@@ -205,9 +202,7 @@ if(varList):
     for i in range(len(varList)):
         varDict[varList[i]]=raw_input(varList[i]+" : ")
          
-    #print varDict
-    
-#print commandList
+
 
 #Checking whether shellcode var there in the list of args
 if('$shellcode' in varDict):
@@ -217,8 +212,6 @@ getServiceList()
 commandList = generateFinalCommandList(commandList,1)
 #finalCommandStr = commandToAttack(commandList,-1)
 
-print varIndexDict
-print commandList
 
 
 def f(teamNum):
