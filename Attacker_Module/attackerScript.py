@@ -8,9 +8,9 @@ from ictf import iCTF
 attackCommand=""
 serviceVarFound=0
 nonserviceVarFound=0
-ourTeamNum=1
-teams = 3
-tick=5
+ourTeamNum=8
+teams = 10
+tick=300
 
 i = iCTF("http://35.167.152.77/")
 t = i.login("rsingh60@asu.edu","NfyNDZtJGRDD")
@@ -211,11 +211,11 @@ def getServiceList():
     global serviceList,t
     
     flagsList = []
-    #threading.Timer(tick, getServiceList).start()
+    threading.Timer(tick, getServiceList).start()
     
-    #serviceList=t.get_service_list()
+    serviceList=t.get_service_list()
     
-    serviceList=[{u'flag_id_description': u'Flags are identified by the note name.', u'description': u'Password-protected note storage service in C.', u'service_name': u'sample_c', u'team_id': 0, u'state': u'enabled', u'upload_id': 1, u'authors': u'UCSB', u'service_id': 10001, u'port': 10001,u'host':'localhost'}, {u'flag_id_description': u'Flags are identified by the note name.', u'description': u'Password-protected note storage service in Python.', u'service_name': u'sample_py', u'team_id': 0, u'state': u'enabled', u'upload_id': 2, u'authors': u'The iCTF team 2016', u'service_id': 10002, u'port': 10002,u'host':'localhost'}, {u'flag_id_description': u'Flags are identified by the note name.', u'description': u'Password-protected note storage service for the web.', u'service_name': u'sample_web', u'team_id': 0, u'state': u'enabled', u'upload_id': 3, u'authors': u'UCSB', u'service_id': 10003, u'port': 10003,u'host':'localhost'}]
+    #serviceList=[{u'flag_id_description': u'Flags are identified by the note name.', u'description': u'Password-protected note storage service in C.', u'service_name': u'sample_c', u'team_id': 0, u'state': u'enabled', u'upload_id': 1, u'authors': u'UCSB', u'service_id': 10001, u'port': 10001,u'host':'localhost'}, {u'flag_id_description': u'Flags are identified by the note name.', u'description': u'Password-protected note storage service in Python.', u'service_name': u'sample_py', u'team_id': 0, u'state': u'enabled', u'upload_id': 2, u'authors': u'The iCTF team 2016', u'service_id': 10002, u'port': 10002,u'host':'localhost'}, {u'flag_id_description': u'Flags are identified by the note name.', u'description': u'Password-protected note storage service for the web.', u'service_name': u'sample_web', u'team_id': 0, u'state': u'enabled', u'upload_id': 3, u'authors': u'UCSB', u'service_id': 10003, u'port': 10003,u'host':'localhost'}]
         
     
     
