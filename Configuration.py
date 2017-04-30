@@ -1,4 +1,11 @@
 import xml.etree.ElementTree as ET
+
+from __builtin__ import file
+from twisted.application.strports import service
+
+from pip._vendor.html5lib import filters
+
+
 class Configuration:
 
     def __init__(self, fileName, reload=-1):
@@ -50,6 +57,8 @@ class Service:
 
         filterXML = service.find("filters")
         self.filters = {}
-        self.filterList = [] #TODO add filters by position
+        self.filterList = []
         for filter in filterXML:
-            self.filters[filter.attrib['name']] = filter
+            self.filterList.append(filter)
+
+
