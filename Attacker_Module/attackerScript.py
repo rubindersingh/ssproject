@@ -81,8 +81,8 @@ def getCommand(string):
     return string
 
 
-def replaceServiceVar(string,teamNum):
-    global serviceList,nonServiceVarFound
+def replaceServiceVar(string,teamNum,serviceNum):
+    global serviceList,nonServiceVarFound,t
     val = ""
     serviceVarFound=0
     nonServiceVarFound=0
@@ -97,10 +97,17 @@ def replaceServiceVar(string,teamNum):
             var = string[sindex:eindex+1]
         
             print var
-
-            print serviceList[teamNum][string[sindex+2:eindex]]
-            val = str(serviceList[teamNum][string[sindex+2:eindex]])
-            string = string.replace(var,val)
+            
+            if(var=="$_team;"):
+                print serviceList[teamNum][string[sindex+2:eindex]]
+                #val = str(serviceList[teamNum][string[sindex+2:eindex]])
+                var = "team"+str(int(teamNum)+1)
+                string = string.replace(var,val)
+            else:
+                print serviceList[teamNum][string[sindex+2:eindex]]
+                #val = str(serviceList[teamNum][string[sindex+2:eindex]])
+                var = str(t.get_targets(serviceList[serviceNum]['service_id']))
+                string = string.replace(var,val)
         else:
             nonServiceVarFound=1
 
@@ -136,6 +143,7 @@ def getFlags(command,teamNum):
            
     #proc=subprocess.Popen(command + " | nc " + str(serviceList[teamNum]['host']) + " " + str(serviceList[teamNum]['port']), shell=True, stdout=subprocess.PIPE,)
     
+    #flagId = t.get_targets(serviceList[teamNum]['service_id'])
     print command
     
     try:
@@ -167,7 +175,7 @@ def getFlags(command,teamNum):
         raise
 
     
-def attackTeams(command,teamNum):
+def attackTeams(command,teamNum,serviceNum):
     global serviceList,t,nonServiceVarFound,serviceVarFound
 #    print "********* Attacking **********",teamNum,(varDict["$address"]),type(varDict["$address"])   
     
@@ -190,7 +198,7 @@ def attackTeams(command,teamNum):
     while(nonServiceVarFound or serviceVarFound):
         if(serviceVarFound):
             serviceVarFound=0
-            command = replaceServiceVar(command,teamNum)
+            command = replaceServiceVar(command,teamNum,serviceNum)
         if(nonServiceVarFound):
             nonServiceVarFound=0
             command = getCommand(command)
@@ -200,11 +208,11 @@ def attackTeams(command,teamNum):
     
 
 def multiProcessAttacks(teamNum):
-    global ourTeamNum
+    global ourTeamNum,serviceNum
     if((teamNum)!=ourTeamNum):
         print(multiprocessing.current_process())
         print teamNum
-        attackTeams(attackCommand,teamNum)
+        attackTeams(attackCommand,teamNum,int(serviceNum))
 
         
 def getServiceList():
@@ -224,6 +232,8 @@ if __name__ == "__main__":
     
     global serviceList,attackCommand
     print(paramDict)
+    
+    serviceNum = getInput("Enter Service Number to attack 0,1 or 2")
     getServiceList()
     print serviceList
     attackCommand = getCommand("")
