@@ -192,6 +192,7 @@ attackCommand = raw_input("Enter the attack command: ")
 commandList = attackCommand.split(" ")
 #print commandList
 
+
 for i in range(len(commandList)):
     indexVar = commandList[i].find("$")
     if(commandList[i]!='' and (commandList[i][indexVar+1])!='_' and indexVar>=0 and commandList[i][indexVar:] not in varList):
