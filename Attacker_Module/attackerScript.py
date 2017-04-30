@@ -12,9 +12,9 @@ ourTeamNum=1
 teams = 3
 tick=5
 
-"""i = iCTF("http://52.34.158.221/")
-t = i.login("team"+ourTeamNum+"@example.com","password")
-serviceList=t.get_service_list()"""
+i = iCTF("http://35.167.152.77/")
+t = i.login("rsingh60@asu.edu","NfyNDZtJGRDD")
+serviceList=t.get_service_list()
 
 
 varList=[]
