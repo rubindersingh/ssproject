@@ -6,6 +6,9 @@ import os
 import time
 import threading as th
 import logging as log
+
+from re import search
+
 import Configuration as conf
 
 class Firewall:
@@ -44,7 +47,7 @@ class Firewall:
             PID_forked=os.fork()
             if (PID_forked==0):
                 try:
-                    service_up=Popen(service.start_cmd,stdout=PIPE,stdin=None,close_fds=True, shell=True)
+                    service_up = Popen(service.start_cmd,stdout=PIPE,stdin=None,close_fds=True, shell=True)
                     print service_up
                     #print 'Mapped the service at port %d to %d\n' % (port,mapped_port)
                     self.logger.info('Mapped the service at port %d to %d\n' % (external_port,internal_port))
@@ -54,7 +57,7 @@ class Firewall:
                     time.sleep(2)
 
                     #Starting the PROXY on the original port
-                    self.create_proxy(external_port)
+                    self.create_proxy(external_port, service)
 
                     #Kill the child and preventing it from entering the loop
                     sys.exit(0)
@@ -82,37 +85,78 @@ class Firewall:
             print 'Unable to find the service on this port'
 
     #Listening on the original port to listen to the incoming connections
-    def create_proxy(self,port):
+    def create_proxy(self,port,service):
         try:
             #TODO Load service configuration
+            sys.path.append('~/SoftwareSecurity/PROJECT/ssproject/Filters')
             self.buffer = 65536
             proxySocket = socket(AF_INET, SOCK_STREAM)
             proxySocket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
             proxySocket.bind(('',int(port)))
             proxySocket.listen(5)
+            #TODO Control the accept data length
+            MAX_PAYLOAD = 66000
 
-            #print 'Proxy created and running on port', port
+            # print 'Proxy created and running on port', port
             self.logger.info('Proxy CREATED and Running on PORT '+str(port))
             while True:
                 request_sock,(clhost, clport)=proxySocket.accept()
-                #TODO pending full data read
-                data      = request_sock.recv(self.buffer)
+
+                data = ""
+                while True:
+                    recv = request_sock.recv(self.buffer)
+                    if recv is None:
+                        break
+                    else:
+                        data = data + recv
+
                 """print "Data at Proxy ", data
                 attributes= data.split()[1:]
                 param     = ''.join(str(word) for word in attributes)
                 #print 'Message Received at PROXY Port: ',param
                 self.logger.info('REQUEST at PROXY Port:' + str(port) + ' -> ' + str(param))"""
 
-                #TODO Filters
+                if len(data) > MAX_PAYLOAD:
+                    self.logger.info("Request Data Size Overflown")
+                    status = False
+                else:
+                    (error_msg, status) = self.applyFilterCheck(service, port, data)
 
-                map_port=self.port_map[port]
-                response=self.proxy_client(data,map_port)
-                print "Response at Proxy ", response
-                self.logger.info('RESPONSE from MAIN Port:' + str(map_port) + ' -> ' + str(response))
-                request_sock.send(response)
-                request_sock.close()
+                if status is True:
+                    map_port=self.port_map[port]
+                    response=self.proxy_client(data,map_port)
+                    print "Response at Proxy ", response
+                    self.logger.info('RESPONSE from MAIN Port:' + str(map_port) + ' -> ' + str(response))
+                    request_sock.send(response)
+                    request_sock.close()
+                else:
+                    self.logger.info("Request failed the filter check on "+error_msg)
         except Exception as exc:
             handle_Exception(exc)
+
+    def applyFilterCheck(self, service, port, data):
+        for filter in service.filterList:
+            name = filter.attrib.get('name',None)
+            if name is None:
+                self.logger.info("No name attribute available for filter ")
+            else:
+                filter_path = name + "." + name
+                import_filter = self.filter_object(filter_path)
+
+                obj = import_filter()
+                res = obj.filterOut(service, data)
+
+                if res is False:
+                    error_msg = "Filter error found for " + name
+                    return (error_msg, False)
+        return ("correct", True)
+
+    def filter_object(name):
+        components = name.split('.')
+        mod = __import__(components[0])
+        for comp in components[1:]:
+            mod = getattr(mod, comp)
+        return mod
 
     def proxy_client(self,data,mapped_port):
         try:

@@ -1,17 +1,12 @@
+from __builtin__ import filter
 from xml.dom.minidom import parse
 import xml.dom.minidom
 import os
 from importlib import import_module
 import sys
 
-
-
-
 args_list_user = []
 port = 5000
-
-
-
 
 sys.path.append('C:\\Users\\addy3\PycharmProjects\dump')
 DOMTree = xml.dom.minidom.parse("config.xml")
