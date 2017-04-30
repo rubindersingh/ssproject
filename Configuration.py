@@ -48,7 +48,8 @@ class Service:
                     self.optional_args[i] = arg
             i = i+1
 
-        filterList = service.find("filters")
+        filterXML = service.find("filters")
         self.filters = {}
-        for filter in filterList:
+        self.filterList = [] #TODO add filters by position
+        for filter in filterXML:
             self.filters[filter.attrib['name']] = filter

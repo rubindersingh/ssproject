@@ -33,6 +33,8 @@
 			</arg>-->
 		</expected_args>
 		<filters>
+			<filter name="myThisServiceParser">
+			</filter>
 			<filter name="num_of_args">
 				<required>5</required>
 				<next>type_check</next>

@@ -84,6 +84,7 @@ class Firewall:
     #Listening on the original port to listen to the incoming connections
     def create_proxy(self,port):
         try:
+            #TODO Load service configuration
             self.buffer = 65536
             proxySocket = socket(AF_INET, SOCK_STREAM)
             proxySocket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
@@ -94,12 +95,16 @@ class Firewall:
             self.logger.info('Proxy CREATED and Running on PORT '+str(port))
             while True:
                 request_sock,(clhost, clport)=proxySocket.accept()
+                #TODO pending full data read
                 data      = request_sock.recv(self.buffer)
-                print "Data at Proxy ", data
+                """print "Data at Proxy ", data
                 attributes= data.split()[1:]
                 param     = ''.join(str(word) for word in attributes)
                 #print 'Message Received at PROXY Port: ',param
-                self.logger.info('REQUEST at PROXY Port:' + str(port) + ' -> ' + str(param))
+                self.logger.info('REQUEST at PROXY Port:' + str(port) + ' -> ' + str(param))"""
+
+                #TODO Filters
+
                 map_port=self.port_map[port]
                 response=self.proxy_client(data,map_port)
                 print "Response at Proxy ", response
