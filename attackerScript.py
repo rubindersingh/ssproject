@@ -140,15 +140,30 @@ def getFlags(command,teamNum):
     try:
     
         proc=subprocess.Popen(command, shell=True, stdout=subprocess.PIPE,)
-
-
         output=proc.communicate()[0]
         print output
-        
+    
+        result = output.split(" ")
+
+        for i in range(0,len(result)):
+            try:
+                print result[i].index('FLG')
+                flagList=(result[i].split('\n'))
+                for j in range(0,len(flagList)):
+                    if(flagList[j]!=''):
+                        flagsList.append(flagList[j])
+
+            except:
+                 continue
+
+
+
+        print flagsList
+        print t.submit_flag(flagsList)
+
     except:
         print("Unexpected error:", sys.exc_info()[0])
         raise
-
 
     
 def attackTeams(command,teamNum):
