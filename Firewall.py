@@ -68,7 +68,7 @@ class Firewall:
                 self.fork_process.append(PID_forked)
 
     def kill_service(self,port, service):
-        if service.stop_cmd:
+        if service.stop_cmd is not None:
             out = Popen(service.stop_cmd, stdout=None, shell=True)
         else:
             #The PID parameter is the 2nd argument in the output of lsof
@@ -92,20 +92,19 @@ class Firewall:
         try:
             #TODO Load service configuration
             sys.path.append('~/Documents/ssproject/Filters')
-            self.buffer = 65536
             proxySocket = socket(AF_INET, SOCK_STREAM)
             proxySocket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
             proxySocket.bind(('',int(port)))
-            proxySocket.listen(5)
+            proxySocket.listen(service.req_queue_size)
             #TODO Control the accept data length
-            MAX_PAYLOAD = 66000
 
             # print 'Proxy created and running on port', port
             self.logger.info('Proxy CREATED and Running on PORT '+str(port))
             while True:
+                service = self.configuration.reloadService(port)
                 request_sock,(clhost, clport)=proxySocket.accept()
 
-                data = request_sock.recv(self.buffer)
+                data = request_sock.recv(service.buffer)
                 """while True:
                     recv = request_sock.recv(self.buffer)
                     if recv is None:
@@ -115,7 +114,7 @@ class Firewall:
 
                 self.logger.info("Firewall-Service:%d: Request at Proxy %s" %(port, data))
 
-                if len(data) > MAX_PAYLOAD:
+                if len(data) > service.max_payload:
                     self.logger.info("Firewall-Service:%d: Request Data Size Overflown" %(port))
                     status = False
                 else:
