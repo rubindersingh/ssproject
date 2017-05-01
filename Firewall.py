@@ -6,6 +6,7 @@ import os
 import time
 import threading as th
 import logging as log
+import signal
 
 from re import search
 
@@ -105,33 +106,41 @@ class Firewall:
                 request_sock,(clhost, clport)=proxySocket.accept()
                 child_id = os.fork()
                 if (child_id == 0):
+                    mypid = os.getpid()
                     prxy_chld_sock = socket(AF_INET, SOCK_STREAM)
                     prxy_chld_sock.connect(('', service.internal_port))
 
                     incoming = True
-                    while incoming:
-                        data = request_sock.recv(service.buffer)
-                        self.logger.info("Firewall-Service:%d: Request at Proxy %s" % (port, data))
+                    try:
+                        while incoming:
+                            data = request_sock.recv(service.buffer)
+                            if data == '':
+                                break
+                            self.logger.info("Firewall-Service:%d: Request at Proxy %s" % (port, data))
 
-                        self.logger.info("Firewall-Service:%d: Before filter" % (port))
-                        (error_msg, status) = self.applyFilterCheck(service, port, data)
-                        self.logger.info("Firewall-Service:%d: After filter %s %s" % (port, status, error_msg))
+                            self.logger.info("Firewall-Service:%d: Before filter" % (port))
+                            (error_msg, status) = self.applyFilterCheck(service, port, data)
+                            self.logger.info("Firewall-Service:%d: After filter %s %s" % (port, status, error_msg))
 
-                        if status is True:
-                            map_port = self.port_map[port]
-                            prxy_chld_sock.send(data)
-                            response = prxy_chld_sock.recv(service.buffer)
-                            self.logger.info("Response at Proxy " + response)
-                            self.logger.info('RESPONSE from MAIN Port:' + str(map_port) + ' -> ' + str(response))
-                            request_sock.send(response)
-                        else:
-                            self.logger.error(
-                                "Firewall-Service:%d: Request failed the filter check on %s" % (port, error_msg))
-
-                        if data == '':
-                            break
-                    prxy_chld_sock.close()
-                    request_sock.close()
+                            if status is True:
+                                map_port = self.port_map[port]
+                                prxy_chld_sock.send(data)
+                                response = prxy_chld_sock.recv(service.buffer)
+                                self.logger.info("Response at Proxy " + response)
+                                self.logger.info('RESPONSE from MAIN Port:' + str(map_port) + ' -> ' + str(response))
+                                request_sock.send(response)
+                            else:
+                                self.logger.error(
+                                    "Firewall-Service:%d: Request failed the filter check on %s" % (port, error_msg))
+                            if response == '':
+                                break
+                    finally:
+                        prxy_chld_sock.shutdown(1)
+                        prxy_chld_sock.close()
+                        request_sock.shutdown(1)
+                        request_sock.close()
+                        os.kill(mypid, signal.SIGTERM)
+                        sys.exit(0)
         except Exception as exc:
             handle_Exception(exc)
 

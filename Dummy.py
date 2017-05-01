@@ -37,11 +37,11 @@ def filter_object(name):
         mod = getattr(mod, comp)
     return mod
 
-sys.path.append('~/SoftwareSecurity/PROJECT/ssproject/Filters')
+sys.path.append('/opt/Courses/Software Security/ssproject/Filters')
 
-filter_path = "multi_pattern_check1.multi_pattern_check1"
+filter_path = "passOnParser"
 import_filter = filter_object(filter_path)
-obj = import_filter()
+obj = import_filter.parse("Hello hi")
 print "Hello"
 
 
