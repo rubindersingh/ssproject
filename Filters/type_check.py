@@ -85,6 +85,7 @@ class type_check:
                         print "Type Check - regex: Arg with Name: %s, POS: %s, Value: %s is invalid" % (
                             name, pos, object)
                         return False
+            return True
         except Exception, err:
             print 'type_check - ERROR: %sn' % str(err)
             return True

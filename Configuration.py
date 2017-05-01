@@ -1,11 +1,5 @@
 import xml.etree.ElementTree as ET
 
-from __builtin__ import file
-from twisted.application.strports import service
-
-from pip._vendor.html5lib import filters
-
-
 class Configuration:
 
     def __init__(self, fileName, reload=-1):
