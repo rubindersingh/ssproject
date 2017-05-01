@@ -5,7 +5,7 @@
 			<external_port>20001</external_port>
 			<internal_port>50001</internal_port>
 			<stop_cmd>/etc/init.d/xinetd stop</stop_cmd>
-			<start_cmd>sed -i 's/20001/50001/g' /etc/init.d/sample_c; /etc/init.d/xinetd start</start_cmd>
+			<start_cmd>sed -i 's/20001/50001/g' /etc/xinetd.d/sample_c; /etc/init.d/xinetd start</start_cmd>
 			<buffer>65536</buffer>
 			<max_payload>65536</max_payload>
 			<req_queue_size>100</req_queue_size>
@@ -21,7 +21,7 @@
 			<external_port>20002</external_port>
 			<internal_port>50002</internal_port>
 			<stop_cmd>/etc/init.d/xinetd stop</stop_cmd>
-			<start_cmd>sed -i 's/20002/50002/g' /etc/init.d/sample_py; /etc/init.d/xinetd start</start_cmd>
+			<start_cmd>sed -i 's/20002/50002/g' /etc/xinetd.d/sample_py; /etc/init.d/xinetd start</start_cmd>
 			<buffer>65536</buffer>
 			<max_payload>65536</max_payload>
 			<req_queue_size>100</req_queue_size>

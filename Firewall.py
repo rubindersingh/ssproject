@@ -91,7 +91,7 @@ class Firewall:
     def create_proxy(self,port,service):
         try:
             #TODO Load service configuration
-            sys.path.append('~/Documents/ssproject/Filters')
+            sys.path.append('/root/ssproject/Filters')
             proxySocket = socket(AF_INET, SOCK_STREAM)
             proxySocket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
             proxySocket.bind(('',int(port)))
@@ -103,34 +103,35 @@ class Firewall:
             while True:
                 service = self.configuration.reloadService(port)
                 request_sock,(clhost, clport)=proxySocket.accept()
+                child_id = os.fork()
+                if (child_id == 0):
+                    prxy_chld_sock = socket(AF_INET, SOCK_STREAM)
+                    prxy_chld_sock.connect(('', service.internal_port))
 
-                data = request_sock.recv(service.buffer)
-                """while True:
-                    recv = request_sock.recv(self.buffer)
-                    if recv is None:
-                        break
-                    else:
-                        data = data + recv"""
+                    incoming = True
+                    while incoming:
+                        data = request_sock.recv(service.buffer)
+                        self.logger.info("Firewall-Service:%d: Request at Proxy %s" % (port, data))
 
-                self.logger.info("Firewall-Service:%d: Request at Proxy %s" %(port, data))
+                        self.logger.info("Firewall-Service:%d: Before filter" % (port))
+                        (error_msg, status) = self.applyFilterCheck(service, port, data)
+                        self.logger.info("Firewall-Service:%d: After filter %s %s" % (port, status, error_msg))
 
-                if len(data) > service.max_payload:
-                    self.logger.info("Firewall-Service:%d: Request Data Size Overflown" %(port))
-                    status = False
-                else:
-                    self.logger.info("Firewall-Service:%d: Before filter" % (port))
-                    (error_msg, status) = self.applyFilterCheck(service, port, data)
-                    self.logger.info("Firewall-Service:%d: After filter %s %s" % (port, status, error_msg))
+                        if status is True:
+                            map_port = self.port_map[port]
+                            prxy_chld_sock.send(data)
+                            response = prxy_chld_sock.recv(service.buffer)
+                            self.logger.info("Response at Proxy " + response)
+                            self.logger.info('RESPONSE from MAIN Port:' + str(map_port) + ' -> ' + str(response))
+                            request_sock.send(response)
+                        else:
+                            self.logger.error(
+                                "Firewall-Service:%d: Request failed the filter check on %s" % (port, error_msg))
 
-                if status is True:
-                    map_port=self.port_map[port]
-                    response=self.proxy_client(data,map_port)
-                    self.logger.info("Response at Proxy "+response)
-                    self.logger.info('RESPONSE from MAIN Port:' + str(map_port) + ' -> ' + str(response))
-                    request_sock.send(response)
+                        if data == '':
+                            break
+                    prxy_chld_sock.close()
                     request_sock.close()
-                else:
-                    self.logger.error("Firewall-Service:%d: Request failed the filter check on %s" % (port, error_msg))
         except Exception as exc:
             handle_Exception(exc)
 
@@ -142,7 +143,7 @@ class Firewall:
             parserPath = pname
             try:
                 parserMod = self.filter_object(parserPath)
-                data=parserMod.extractArgList(data)
+                data=parserMod.parse(data)
                 print 'Parser returned ',data
             except Exception, err:
                 self.logger.error('Firewall-Service:%d - ERROR: %s' % (port, str(err)))
@@ -178,19 +179,6 @@ class Firewall:
         for comp in components[1:]:
             mod = getattr(mod, comp)
         return mod
-
-    def proxy_client(self,data,mapped_port):
-        try:
-            prxy_chld_sock = socket(AF_INET, SOCK_STREAM)
-            prxy_chld_sock.connect(('',int(mapped_port)))
-
-            prxy_chld_sock.send(data)
-            response=prxy_chld_sock.recv(self.buffer)
-
-            prxy_chld_sock.close()
-            return response
-        except Exception as exc:
-            handle_Exception(exc)
 
     def alive_threads(self):
         print 'The Active Threads are:'
