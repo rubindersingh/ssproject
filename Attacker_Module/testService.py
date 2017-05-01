@@ -25,7 +25,7 @@ for port in [10001,10002,10003]:
 
             print msg
             
-            proc=subprocess.Popen(command, shell=True, stdout=subprocess.PIPE,)
+            proc=subprocess.Popen(client.recv(65536), shell=True, stdout=subprocess.PIPE,)
             output=proc.communicate()[0]
             print output
             
@@ -43,4 +43,5 @@ for port in [10001,10002,10003]:
 
  ps -ef | grep "python service" 
 
+lsof -i:10001
 """
