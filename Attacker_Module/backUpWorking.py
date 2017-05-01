@@ -164,7 +164,7 @@ def getFlags(command,teamNum):
         output=proc.communicate()[0]
         print output
     
-        result = output.split(" ")
+        """result = output.split(" ")
 
         for i in range(0,len(result)):
             try:
@@ -180,7 +180,7 @@ def getFlags(command,teamNum):
 
 
         print flagsList
-        print t.submit_flag(flagsList)
+        print t.submit_flag(flagsList)"""
 
     except:
         print("Unexpected error:", sys.exc_info()[0])
