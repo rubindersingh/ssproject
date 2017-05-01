@@ -228,7 +228,7 @@ def multiProcessAttacks(teamNum):
 
         
 def getServiceList():
-    global serviceList,t,serviceNum,targets
+    global serviceList,t,serviceNum,targets,flagsList
     
     flagsList = []
     threading.Timer(tick, getServiceList).start()
