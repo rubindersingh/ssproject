@@ -67,6 +67,7 @@ class Service:
                         print "Duplicate position argument"
                         exit(0)
 
+        self.parser=service.find("parser")
         filterXML = service.find("filters")
         self.filters = {}
         self.filterList = []

@@ -88,7 +88,7 @@ class Firewall:
     def create_proxy(self,port,service):
         try:
             #TODO Load service configuration
-            sys.path.append('~/SoftwareSecurity/PROJECT/ssproject/Filters')
+            sys.path.append('~/Documents/ssproject/Filters')
             self.buffer = 65536
             proxySocket = socket(AF_INET, SOCK_STREAM)
             proxySocket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
@@ -133,16 +133,34 @@ class Firewall:
             handle_Exception(exc)
 
     def applyFilterCheck(self, service, port, data):
+        if service.parser is None:
+            return ("correct", True)
+        else:
+            pname = service.parser.attrib.get('name',None)
+            parserPath = pname
+            try:
+                parserMod = self.filter_object(parserPath)
+                data=parserMod.extractArgList(data)
+                print 'Parser returned ',data
+            except Exception, err:
+                self.logger.error('Firewall-Service:%d - ERROR: %s' % (port, str(err)))
+                return ("correct", True)
+
+
         for filter in service.filterList:
             name = filter.attrib.get('name',None)
             if name is None:
                 self.logger.info("No name attribute available for filter ")
             else:
                 filter_path = name + "." + name
+                #print 'Filter path: ',filter_path
                 try:
                     import_filter = self.filter_object(filter_path)
+                    print 'import_filter is: ',import_filter
                     obj = import_filter()
+                    print 'Object is ',obj
                     res = obj.filterOut(service, data)
+                    print 'Filter: ',name + res
 
                     if res is False:
                         error_msg = "Filter error found for " + name
@@ -153,7 +171,9 @@ class Firewall:
 
     def filter_object(self, name):
         components = name.split('.')
+        print 'Components: ',components
         mod = __import__(components[0])
+        print 'Mod is: ',mod
         for comp in components[1:]:
             mod = getattr(mod, comp)
         return mod
