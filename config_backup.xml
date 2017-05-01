@@ -1,0 +1,50 @@
+<configuration>
+	<reload>60</reload>
+	<services>
+		<service>
+			<external_port>20001</external_port>
+			<internal_port>50001</internal_port>
+			<start_cmd>python Service 50001</start_cmd>
+
+			<expected_args>
+				<!--<arg name= "age" type="int" regex="[0-9]+" position="0" max_value="100"
+				min_value="1" required="1"/>
+
+				<arg name= "salary" type="float" position="1" max_value="100000000000.0001"
+				min_value="12.98" required="1"/>
+
+				<arg name= "name" type="str" position="2" max_len="50" min_len="1" required="1"/>
+
+
+
+				<arg name= "admin" type="bool" position="3" required="1"/>
+
+				<arg name= "numbers" type="list" position="4" max_len="256" min_len="2" required="1"/>
+
+				<arg name= "map_num" type="dict" position="5" max_len="256" min_len="2" required="1"/>
+
+				<arg name= "arg8" type="string" regex="[A-Za-z0-9]+" position="8" max_len="512"
+					 default_value="" delimiter="\0"/>
+
+					 -->
+
+				<arg name= "list_num" type="list" position="6" max_len="256" min_len="2" required="1" iter="1">
+					<pattern regex="[0-9]+"/>
+					<pattern regex="[0-9]+"/>
+					<pattern regex="[0-9]+"/>
+				</arg>
+
+				<arg name= "password" type="str" max_len="16" min_len="8" position="7">
+					<pattern regex="[A-Za-z0-9]+"/>
+					<pattern regex="[A-Za-z0-9]+"/>
+					<pattern regex="[A-Za-z0-9]+"/>
+				</arg>
+
+			</expected_args>
+			<filters>
+				<filter name="multi_pattern_check1">
+				</filter>
+			</filters>
+		</service>
+	</services>
+</configuration>

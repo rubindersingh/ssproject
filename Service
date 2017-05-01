@@ -1,0 +1,22 @@
+#!/usr/bin/env python
+from socket import *
+import sys
+
+sock=AF_INET
+stream=SOCK_STREAM
+port_num=int(sys.argv[1])
+
+stream_sock=socket(sock, stream)
+stream_sock.bind(('',port_num))
+stream_sock.listen(5)
+print 'Service Started'
+while True:
+    client, (clienthost, clientport) = stream_sock.accept()
+    msg = "SERVER Says: " + client.recv(1024)
+
+    attributes=msg.split()[1:]
+    param = ''.join(str(x) for x in attributes)
+    #print 'At Mapped Service, attributes: ',param
+
+    client.send(msg)
+    client.close()
