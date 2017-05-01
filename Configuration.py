@@ -1,9 +1,13 @@
 import xml.etree.ElementTree as ET
+import os
+import sys
 
 class Configuration:
 
     def __init__(self, fileName, reload=-1):
         tree = ET.parse(fileName)
+        self.fileName = fileName
+        self.lastchanged = os.stat(fileName).st_mtime
         self.configuration = tree.getroot()
         self.services = {}
         for service in self.configuration.find("services"):
@@ -12,12 +16,26 @@ class Configuration:
     def getService(self, port):
         return self.services[port]
 
+    def reloadService(self, port):
+        modTime = os.stat(self.fileName).st_mtime
+        if modTime != self.lastchanged:
+            tree = ET.parse(self.fileName)
+            self.lastchanged = modTime
+            self.configuration = tree.getroot()
+            self.services = {}
+            for service in self.configuration.find("services"):
+                self.services[int(service.find("external_port").text)] = Service(service)
+        return self.services[port]
+
 class Service:
     def __init__(self, service):
         self.internal_port = int(service.find("internal_port").text)
         self.external_port = int(service.find("external_port").text)
         self.start_cmd = service.find("start_cmd").text
         self.stop_cmd = service.find("stop_cmd").text
+        self.buffer = int(service.find("buffer").text)
+        self.max_payload = int(service.find("max_payload").text)
+        self.req_queue_size = int(service.find("req_queue_size").text)
         self.pos_expected_args = {}
         self.named_expected_args = {}
         args = service.find("expected_args")

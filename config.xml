@@ -6,6 +6,9 @@
 			<internal_port>50001</internal_port>
 			<stop_cmd>/etc/init.d/xinetd stop</stop_cmd>
 			<start_cmd>sed -i 's/20001/50001/g' /etc/init.d/sample_c; /etc/init.d/xinetd start</start_cmd>
+			<buffer>65536</buffer>
+			<max_payload>65536</max_payload>
+			<req_queue_size>100</req_queue_size>
 
 			<expected_args>
 				<arg name= "arg1" type="str" required="1"/>
@@ -19,6 +22,9 @@
 			<internal_port>50002</internal_port>
 			<stop_cmd>/etc/init.d/xinetd stop</stop_cmd>
 			<start_cmd>sed -i 's/20002/50002/g' /etc/init.d/sample_py; /etc/init.d/xinetd start</start_cmd>
+			<buffer>65536</buffer>
+			<max_payload>65536</max_payload>
+			<req_queue_size>100</req_queue_size>
 
 			<expected_args>
 				<arg name= "arg1" type="str" required="1"/>
@@ -32,6 +38,9 @@
 			<internal_port>50003</internal_port>
 			<stop_cmd>service apache2 stop</stop_cmd>
 			<start_cmd>sed -i 's/20003/50003/g' /etc/apache2/sites-enabled/sample_web.conf; service apache2 start</start_cmd>
+			<buffer>65536</buffer>
+			<max_payload>65536</max_payload>
+			<req_queue_size>100</req_queue_size>
 
 			<expected_args>
 				<arg name= "arg1" type="str" equired="1"/>
