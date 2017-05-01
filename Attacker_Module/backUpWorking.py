@@ -134,7 +134,7 @@ def getParameters(string):
 
 
 def getFlags(command,teamNum):
-    global serviceList,t
+    global serviceList,t,flagsList
     flagList=[]
     result=[]
     
