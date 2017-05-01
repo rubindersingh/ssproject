@@ -11,10 +11,10 @@ class num_of_args:
                 arg = None
                 req_arg = None
                 if name is not None:
-                    arg = service.expected_args.get(name, None)
+                    arg = service.named_expected_args.get(name, None)
                     req_arg = service.required_args.get(name, None)
                 else:
-                    arg = service.expected_args.get(pos, None)
+                    arg = service.pos_expected_args.get(pos, None)
                     req_arg = service.required_args.get(pos, None)
 
                 if arg is not None:
@@ -25,10 +25,7 @@ class num_of_args:
                     print "Arg with Name: %s, POS: %s, Value: %s is invalid" % (name, pos, object)
                     return False
 
-            if valid_arg_count < service.min_args:
-                return False
-
-            if req_arg_count!=len(service.required_args):
+            if req_arg_count!=service.min_args:
                 return False
         except Exception, err:
             print 'num_of_args - ERROR: %sn' % str(err)
