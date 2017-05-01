@@ -8,8 +8,8 @@ from ictf import iCTF
 attackCommand=""
 serviceVarFound=0
 nonserviceVarFound=0
-ourTeamNum=8
-teams = 10
+ourTeamNum=1
+teams =3
 tick=300
 
 i = iCTF("http://35.167.152.77/")
@@ -63,6 +63,7 @@ def getCommand(string):
         if(string[sindex+1]!='_'):
             var = string[sindex:eindex+1]
         
+            print "000000000"
             print var
 
             if varDict.__contains__(var):
@@ -76,6 +77,7 @@ def getCommand(string):
             string = string.replace(var,val)
             
         else:
+            print "Serice found"
             serviceVarFound=1
 
     return string
@@ -87,28 +89,39 @@ def replaceServiceVar(string,teamNum,serviceNum):
     serviceVarFound=0
     nonServiceVarFound=0
     
+    print "in"
+    
     while(string.find('$') != -1 and nonServiceVarFound==0):
         sindex = string.find('$')
         eindex = string.find(';')
         if eindex == -1:
             print("Incorrect variable declaration. Use ';' to terminate variable name.")
             exit(1)
+            
+        print string[sindex+1],string[sindex+1:]
         if(string[sindex+1]=='_'):
             var = string[sindex:eindex+1]
         
             print var
             
             if(var=="$_team;"):
-                print serviceList[teamNum][string[sindex+2:eindex]]
+                print serviceList[serviceNum][string[sindex+2:eindex]]
                 #val = str(serviceList[teamNum][string[sindex+2:eindex]])
                 var = "team"+str(int(teamNum)+1)
                 string = string.replace(var,val)
             else:
-                print serviceList[teamNum][string[sindex+2:eindex]]
+                print "******"  
+                #print serviceList[serviceNum][string[sindex+2:eindex]]
+                print "******"  
                 #val = str(serviceList[teamNum][string[sindex+2:eindex]])
-                var = str(t.get_targets(serviceList[serviceNum]['service_id']))
+                var = str(t.get_targets(serviceList[serviceNum][string[sindex+2:eindex]]))
+                #var = str(200)
                 string = string.replace(var,val)
+            print "******"  
+            print string,var
+            print "******"
         else:
+            print "Non serv"
             nonServiceVarFound=1
 
     return string
