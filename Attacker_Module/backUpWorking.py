@@ -156,7 +156,7 @@ def getFlags(command,teamNum):
         print("Unexpected error:", sys.exc_info()[0])
         raise"""
 
-     try:
+    try:
     
         proc=subprocess.Popen(command, shell=True, stdout=subprocess.PIPE,)
         output=proc.communicate()[0]

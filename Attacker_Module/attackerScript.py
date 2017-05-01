@@ -182,10 +182,10 @@ def getFlags(command,teamNum):
 
         print flagsList
         print t.submit_flag(flagsList)
-
-    except:
-        print("Unexpected error:", sys.exc_info()[0])
-        raise
+        
+        except:
+            print("Unexpected error:", sys.exc_info()[0])
+            raise
 
     
 def attackTeams(command,teamNum,serviceNum):
