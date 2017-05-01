@@ -1,55 +1,94 @@
-from xml.dom.minidom import parse
-import xml.dom.minidom
-import sys
 import re
-from ast import literal_eval
-
-arglist = [88.90, 'apple']
-DOMTree = xml.dom.minidom.parse("config.xml")
+import ast
+import sys
 
 class type_check:
+    def get_type(self, object):
+        try:
+            vartype = str(type(object))
+            return vartype[7:len(vartype) - 2]
+        except (ValueError, SyntaxError):
+            return 'str'
+
+    def evalObject(self, object):
+        try:
+            val = ast.literal_eval(object)
+            return val
+        except (ValueError, SyntaxError):
+            return object
+
     def filterOut(self, service, argList):
-        for (pos, name, object) in argList:
-            if name is not None:
-                arg = service.expected_args[name]
-            else:
-                arg = service.expected_args[pos]
-
-            if arg.attrib.get('type', None) is not None:
-                if get_type(object) is not arg.attrib.get('type'):
-                    return False
+        try:
+            for (pos, name, object) in argList:
+                arg = None
+                if name is not None:
+                    arg = service.named_expected_args.get(name, None)
                 else:
-                    object = convert(arg.attrib.get('type', None), object)
-            if arg.attrib.get('min_value', None) is not None:
-                if object < convert(arg.attrib.get('type', arg.attrib.get('min_value'))):
+                    arg = service.pos_expected_args.get(pos, None)
+
+                if arg is None:
+                    print "Type Check - config: Arg with Name: %s, POS: %s, Value: %s is invalid" % (name, pos, object)
                     return False
-            if arg.attrib.get('max_value', None) is not None:
-                if object > convert(arg.attrib.get('type', arg.attrib.get('min_value'))):
-                    return False
-            if arg.attrib.get('min_length', None) is not None:
-                if len(str(object)) < int(arg.attrib.get('min_length')):
-                    return False
-            if arg.attrib.get('max_length', None) is not None:
-                if len(str(object)) > int(arg.attrib.get('max_length')):
-                    return False
-            if arg.attrib.get('length', None) is not None:
-                if len(str(object)) != int(arg.attrib.get('length', None)):
-                    return False
-            if arg.attrib.get('regex', None) is not None:
-                pattern = re.compile(arg.attrib.get('regex'))
-                if not pattern.match(str(object)):
-                    return False
+
+                # Check type and verify
+                casted_object = None
+                if arg.attrib.get('type', None) is not None:
+                    if arg.attrib.get('type') != "str":
+                        casted_object = self.evalObject(object)
+                    else:
+                        casted_object = object
+
+                    if self.get_type(casted_object) != arg.attrib.get('type'):
+                        print "Type Check - type: Arg with Name: %s, POS: %s, Value: %s is invalid" % (
+                            name, pos, object)
+                        return False
+
+                # If min_value attr is present
+                if arg.attrib.get('min_value', None) is not None:
+                    if casted_object < self.evalObject(arg.attrib.get('min_value')):
+                        print "Type Check - min_value: Arg with Name: %s, POS: %s, Value: %s is invalid" % (
+                            name, pos, object)
+                        return False
+
+                # If max_value attr is present
+                if arg.attrib.get('max_value', None) is not None:
+                    if casted_object > self.evalObject(arg.attrib.get('max_value')):
+                        print "Type Check - max_value: Arg with Name: %s, POS: %s, Value: %s is invalid" % (
+                            name, pos, object)
+                        return False
+
+                # If min_length attr is present
+                if arg.attrib.get('min_len', None) is not None:
+                    if len(casted_object) < int(arg.attrib.get('min_len')):
+                        print "Type Check - min_length: Arg with Name: %s, POS: %s, Value: %s is invalid" % (
+                            name, pos, object)
+                        return False
+
+                # If max_length attr is present
+                if arg.attrib.get('max_len', None) is not None:
+                    if len(casted_object) > int(arg.attrib.get('max_len')):
+                        print "Type Check - max_length: Arg with Name: %s, POS: %s, Value: %s is invalid" % (
+                            name, pos, object)
+                        return False
+
+                # If max_length attr is present
+                if arg.attrib.get('len', None) is not None:
+                    if len(casted_object) != int(arg.attrib.get('len')):
+                        print "Type Check - length: Arg with Name: %s, POS: %s, Value: %s is invalid" % (
+                            name, pos, object)
+                        return False
+
+                # If regex attr is present
+                if arg.attrib.get('regex', None) is not None:
+                    pattern = re.compile(arg.attrib.get('regex'))
+                    if not pattern.match(object):
+                        print "Type Check - regex: Arg with Name: %s, POS: %s, Value: %s is invalid" % (
+                            name, pos, object)
+                        return False
+        except Exception, err:
+            print 'type_check - ERROR: %sn' % str(err)
+            return True
 
 
 
-def get_type(input_data):
-    try:
-        vartype = str(type(literal_eval(input_data)))
-        return vartype[7:len(vartype) - 2]
-    except (ValueError, SyntaxError):
-        return 'str'
 
-
-def convert(type, object):
-    exec('x=type+"("+object+")"')
-    return eval(x)
