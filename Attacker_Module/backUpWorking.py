@@ -105,7 +105,8 @@ def replaceServiceVar(string,teamNum):
                 string = string.replace(var,val)
             else:
                 print serviceList[int(serviceNum)][string[sindex+2:eindex]]
-                val = str(serviceList[int(serviceNum)][string[sindex+2:eindex]])
+                #val = str(serviceList[int(serviceNum)][string[sindex+2:eindex]])
+                val=t.get_targets(str(serviceList[int(serviceNum)][string[sindex+2:eindex]]))
                 string = string.replace(var,val)
         else:
             nonServiceVarFound=1
