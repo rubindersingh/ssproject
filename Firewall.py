@@ -53,7 +53,7 @@ class Firewall:
                     self.logger.info('Mapped the service at port %d to %d\n' % (external_port,internal_port))
 
                     #Killing the Existing Service running on PORT
-                    self.kill_service(external_port)
+                    self.kill_service(external_port, service)
                     time.sleep(2)
 
                     #Starting the PROXY on the original port
@@ -67,22 +67,25 @@ class Firewall:
                 print 'The child forked is ',PID_forked
                 self.fork_process.append(PID_forked)
 
-    def kill_service(self,port):
-        #The PID parameter is the 2nd argument in the output of lsof
-        #Killing the Running Service, 9 stands for signal.SIGKILL
-        out=Popen(["lsof","-P","-i"],stdout=PIPE)
-        details=Popen(["grep",str(port)],stdin=out.stdout,stdout=PIPE)
-        proc_details=details.stdout.read()
-
-        if len(proc_details)!=0:
-            current_PID=proc_details.split()[1]
-            self.logger.info('PID of Original Service running at port '+str(port)+' is '+str(current_PID))
-            os.kill(int(current_PID),9)
-
-            #print 'Killed the Service running at port '+str(port)
-            self.logger.info('Killed the Service running at port '+str(port))
+    def kill_service(self,port, service):
+        if service.stop_cmd:
+            out = Popen(service.stop_cmd, stdout=None, shell=True)
         else:
-            self.logger.error('Unable to find the service on this port')
+            #The PID parameter is the 2nd argument in the output of lsof
+            #Killing the Running Service, 9 stands for signal.SIGKILL
+            out=Popen(["lsof","-P","-i"],stdout=PIPE)
+            details=Popen(["grep",str(port)],stdin=out.stdout,stdout=PIPE)
+            proc_details=details.stdout.read()
+
+            if len(proc_details)!=0:
+                current_PID=proc_details.split()[1]
+                self.logger.info('PID of Original Service running at port '+str(port)+' is '+str(current_PID))
+                os.kill(int(current_PID),9)
+
+                #print 'Killed the Service running at port '+str(port)
+                self.logger.info('Killed the Service running at port '+str(port))
+            else:
+                self.logger.error('Unable to find the service on this port')
 
     #Listening on the original port to listen to the incoming connections
     def create_proxy(self,port,service):
@@ -133,6 +136,7 @@ class Firewall:
             handle_Exception(exc)
 
     def applyFilterCheck(self, service, port, data):
+
         for filter in service.filterList:
             name = filter.attrib.get('name',None)
             if name is None:

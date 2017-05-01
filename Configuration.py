@@ -17,6 +17,7 @@ class Service:
         self.internal_port = int(service.find("internal_port").text)
         self.external_port = int(service.find("external_port").text)
         self.start_cmd = service.find("start_cmd").text
+        self.stop_cmd = service.find("stop_cmd").text
         self.pos_expected_args = {}
         self.named_expected_args = {}
         args = service.find("expected_args")
