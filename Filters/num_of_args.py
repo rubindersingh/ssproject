@@ -1,24 +1,35 @@
-import os
-import re
-import sys
-from xml.dom.minidom import parse
-import xml.dom.minidom
-
-DOMTree = xml.dom.minidom.parse("config.xml")
-
-
 class num_of_args:
     def filterOut(self, service, argList):
-        data_count = len(argList)
+        given_arg_count = len(argList)
+        try:
+            if not (given_arg_count <= service.max_args and given_arg_count>=service.min_args):
+                return False
 
-        arg_count = 0
-        req_count = 0
-        for (pos, name, object) in argList:
-            if service.expected_args[name] is not None:
-                arg_count += 1
-                if service.required_args[name] is not None:
-                    req_count += 1
+            valid_arg_count = 0
+            req_arg_count = 0
+            for (pos, name, object) in argList:
+                arg = None
+                req_arg = None
+                if name is not None:
+                    arg = service.expected_args.get(name, None)
+                    req_arg = service.required_args.get(name, None)
+                else:
+                    arg = service.expected_args.get(pos, None)
+                    req_arg = service.required_args.get(pos, None)
 
-        if data_count < req_count:
-            return False
+                if arg is not None:
+                    valid_arg_count += 1
+                    if req_arg is not None:
+                        req_arg_count += 1
+                else:
+                    print "Arg with Name: %s, POS: %s, Value: %s is invalid" % (name, pos, object)
+                    return False
+
+            if valid_arg_count < service.min_args:
+                return False
+
+            if req_arg_count!=len(service.required_args):
+                return False
+        except Exception, err:
+            print 'num_of_args - ERROR: %sn' % str(err)
         return True
