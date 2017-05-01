@@ -107,7 +107,7 @@ def replaceServiceVar(string,teamNum,serviceNum):
             if(var=="$_team;"):
                 print serviceList[serviceNum][string[sindex+2:eindex]]
                 #val = str(serviceList[teamNum][string[sindex+2:eindex]])
-                var = "team"+str(int(teamNum)+1)
+                val = "team"+str(int(teamNum)+1)
                 string = string.replace(var,val)
             else:
                 print "******"  
