@@ -82,7 +82,7 @@ class Firewall:
             #print 'Killed the Service running at port '+str(port)
             self.logger.info('Killed the Service running at port '+str(port))
         else:
-            print 'Unable to find the service on this port'
+            self.logger.error('Unable to find the service on this port')
 
     #Listening on the original port to listen to the incoming connections
     def create_proxy(self,port,service):
@@ -102,35 +102,33 @@ class Firewall:
             while True:
                 request_sock,(clhost, clport)=proxySocket.accept()
 
-                data = ""
-                while True:
+                data = request_sock.recv(self.buffer)
+                """while True:
                     recv = request_sock.recv(self.buffer)
                     if recv is None:
                         break
                     else:
-                        data = data + recv
+                        data = data + recv"""
 
-                """print "Data at Proxy ", data
-                attributes= data.split()[1:]
-                param     = ''.join(str(word) for word in attributes)
-                #print 'Message Received at PROXY Port: ',param
-                self.logger.info('REQUEST at PROXY Port:' + str(port) + ' -> ' + str(param))"""
+                self.logger.info("Firewall-Service:%d: Request at Proxy %s" %(port, data))
 
                 if len(data) > MAX_PAYLOAD:
-                    self.logger.info("Request Data Size Overflown")
+                    self.logger.info("Firewall-Service:%d: Request Data Size Overflown" %(port))
                     status = False
                 else:
+                    self.logger.info("Firewall-Service:%d: Before filter" % (port))
                     (error_msg, status) = self.applyFilterCheck(service, port, data)
+                    self.logger.info("Firewall-Service:%d: After filter %s %s" % (port, status, error_msg))
 
                 if status is True:
                     map_port=self.port_map[port]
                     response=self.proxy_client(data,map_port)
-                    print "Response at Proxy ", response
+                    self.logger.info("Response at Proxy "+response)
                     self.logger.info('RESPONSE from MAIN Port:' + str(map_port) + ' -> ' + str(response))
                     request_sock.send(response)
                     request_sock.close()
                 else:
-                    self.logger.info("Request failed the filter check on "+error_msg)
+                    self.logger.error("Firewall-Service:%d: Request failed the filter check on %s" % (port, error_msg))
         except Exception as exc:
             handle_Exception(exc)
 
@@ -141,17 +139,19 @@ class Firewall:
                 self.logger.info("No name attribute available for filter ")
             else:
                 filter_path = name + "." + name
-                import_filter = self.filter_object(filter_path)
+                try:
+                    import_filter = self.filter_object(filter_path)
+                    obj = import_filter()
+                    res = obj.filterOut(service, data)
 
-                obj = import_filter()
-                res = obj.filterOut(service, data)
-
-                if res is False:
-                    error_msg = "Filter error found for " + name
-                    return (error_msg, False)
+                    if res is False:
+                        error_msg = "Filter error found for " + name
+                        return (error_msg, False)
+                except Exception, err:
+                    self.logger.error('Firewall-Service:%d - ERROR: %s' % (port, str(err)))
         return ("correct", True)
 
-    def filter_object(name):
+    def filter_object(self, name):
         components = name.split('.')
         mod = __import__(components[0])
         for comp in components[1:]:
