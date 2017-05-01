@@ -8,11 +8,11 @@ from ictf import iCTF
 attackCommand=""
 serviceVarFound=0
 nonserviceVarFound=0
-ourTeamNum=8
-teams = 10
+ourTeamNum=25
+teams = 23
 tick=300
 
-i = iCTF("http://35.167.152.77/")
+i = iCTF("http://35.160.215.67/")
 t = i.login("rsingh60@asu.edu","NfyNDZtJGRDD")
 serviceList=t.get_service_list()
 
