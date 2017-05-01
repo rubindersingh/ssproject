@@ -81,7 +81,7 @@ def getCommand(string):
 
 
 def replaceServiceVar(string,teamNum):
-    global serviceList,nonServiceVarFound,serviceNum
+    global serviceList,nonServiceVarFound,serviceNum,t
     val = ""
     serviceVarFound=0
     nonServiceVarFound=0
@@ -106,7 +106,7 @@ def replaceServiceVar(string,teamNum):
             else:
                 print serviceList[int(serviceNum)][string[sindex+2:eindex]]
                 #val = str(serviceList[int(serviceNum)][string[sindex+2:eindex]])
-                val=t.get_targets(str(serviceList[int(serviceNum)][string[sindex+2:eindex]]))
+                val=t.get_targets(int(serviceList[int(serviceNum)][string[sindex+2:eindex]]))
                 string = string.replace(var,val)
         else:
             nonServiceVarFound=1
